@@ -1,6 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { SignupDto, SignupResponseDto } from './dto/signup.dto';
 import { LoginDto, LoginResponseDto } from './dto/login.dto';
 
@@ -10,6 +10,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
+  @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({
     type: SignupResponseDto,
   })
@@ -18,6 +19,8 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Authenticate a user and return a token' })
   @ApiResponse({
     type: LoginResponseDto,
   })

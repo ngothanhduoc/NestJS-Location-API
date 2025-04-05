@@ -20,7 +20,8 @@ export class LocationService {
       const parent = await this.locationRepo.findOne({
         where: { id: dto.parentId },
       });
-      if (!parent) throw new NotFoundException('Parent location not found');
+      if (!parent)
+        throw new NotFoundException('error.parent-location-not-found');
       location.parent = parent;
     }
 
@@ -36,13 +37,13 @@ export class LocationService {
       where: { id },
       relations: ['children', 'parent'],
     });
-    if (!node) throw new NotFoundException('Location not found');
+    if (!node) throw new NotFoundException('error.location-not-found');
     return node;
   }
 
   async update(id: string, dto: UpdateLocationDto) {
     const location = await this.locationRepo.findOneBy({ id });
-    if (!location) throw new NotFoundException('Location not found');
+    if (!location) throw new NotFoundException('error.location-not-found');
 
     Object.assign(location, dto);
     return this.locationRepo.save(location);
@@ -50,7 +51,7 @@ export class LocationService {
 
   async remove(id: string): Promise<void> {
     const node = await this.locationRepo.findOne({ where: { id } });
-    if (!node) throw new NotFoundException('Location not found');
+    if (!node) throw new NotFoundException('error.location-not-found');
     await this.locationRepo.remove(node);
   }
 }

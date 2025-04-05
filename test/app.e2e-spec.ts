@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
@@ -9,6 +10,12 @@ describe('AppController (e2e)', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
+      providers: [
+        {
+          provide: 'UUID',
+          useValue: uuidv4,
+        },
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();

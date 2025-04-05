@@ -23,16 +23,18 @@ import {
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { ResponseLocationDto } from './dto/response-location.dto';
 import { ResponseLocationWithChildrenDto } from './dto/response-location-with-children.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('locations')
 @ApiTags('locations')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class LocationController {
   constructor(private readonly service: LocationService) {}
 
   @Roles('admin')
   @Post()
+  @ApiOperation({ summary: 'Create a new location' })
   @ApiResponse({
     type: ResponseLocationDto,
   })
@@ -41,6 +43,7 @@ export class LocationController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all locations with children' })
   @ApiResponse({
     type: ResponseLocationWithChildrenDto,
     isArray: true,
@@ -50,6 +53,7 @@ export class LocationController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a specific location by ID with children' })
   @ApiResponse({
     type: ResponseLocationWithChildrenDto,
     isArray: true,
@@ -60,7 +64,7 @@ export class LocationController {
 
   @Roles('admin')
   @Put(':id')
-  @ApiOperation({ summary: 'Update location ID' })
+  @ApiOperation({ summary: 'Update a specific location by ID' })
   @ApiResponse({ status: 200, description: 'Update location success' })
   @ApiResponse({
     type: ResponseLocationDto,
@@ -71,6 +75,7 @@ export class LocationController {
 
   @Roles('admin')
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a specific location by ID' })
   remove(@Param('id') id: string) {
     return this.service.remove(id);
   }
