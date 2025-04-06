@@ -5,8 +5,6 @@ import {
   Tree,
   TreeChildren,
   TreeParent,
-  TreeRepository,
-  TreeLevelColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
