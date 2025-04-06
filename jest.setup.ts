@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 process.env.NODE_ENV = 'test';
 
 import * as crypto from 'crypto';
