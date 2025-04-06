@@ -61,7 +61,7 @@ DB_SYNC=true
 
 # Other environment variables (if needed)
 NODE_ENV=development
-PORT=3005
+PORT=3000
 JWT_SECRET=your_jwt_secret
 JWT_EXPIRATION=1h
 ```
@@ -92,6 +92,8 @@ Use the @Roles('admin') decorator to restrict endpoints.
 ---
 ## 🧪 Testing Guide
 ✅ Unit Tests: `yarn test`
+
+Test results: https://github.com/ngothanhduoc/NestJS-Location-API/actions/runs/14288619771/job/40046932405
 
 ✅ End-to-End (e2e) Tests: `yarn test:e2e`
 
