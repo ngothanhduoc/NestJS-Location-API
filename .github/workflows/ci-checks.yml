@@ -23,18 +23,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get Yarn cache directory
-        id: yarn-cache-dir
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v4
-        id: yarn-cache
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          path: ${{ steps.yarn-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-            
+          node-version: 16 # Specify the Node.js version here
+          cache: 'yarn'
+
       - name: Install modules
         run: yarn install --frozen-lockfile
 
@@ -59,4 +53,3 @@ jobs:
 
       - name: Run unit tests
         run: yarn test:e2e
-
