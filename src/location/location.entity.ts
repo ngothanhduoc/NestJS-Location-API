@@ -20,7 +20,7 @@ export class LocationEntity {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ unique: true })
   code: string;
 
   @Column('float')

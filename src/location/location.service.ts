@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LocationEntity } from './location.entity';
 import { TreeRepository } from 'typeorm';
@@ -13,19 +17,23 @@ export class LocationService {
   ) {}
 
   async create(dto: CreateLocationDto): Promise<LocationEntity> {
-    const location = new LocationEntity();
-    Object.assign(location, dto);
+    try {
+      const location = new LocationEntity();
+      Object.assign(location, dto);
 
-    if (dto.parentId) {
-      const parent = await this.locationRepo.findOne({
-        where: { id: dto.parentId },
-      });
-      if (!parent)
-        throw new NotFoundException('error.parent-location-not-found');
-      location.parent = parent;
+      if (dto.parentId) {
+        const parent = await this.locationRepo.findOne({
+          where: { id: dto.parentId },
+        });
+        if (!parent)
+          throw new NotFoundException('error.parent-location-not-found');
+        location.parent = parent;
+      }
+
+      return await this.locationRepo.save(location);
+    } catch (error) {
+      throw new UnprocessableEntityException(error.message);
     }
-
-    return await this.locationRepo.save(location);
   }
 
   async findAll(): Promise<LocationEntity[]> {
@@ -42,11 +50,15 @@ export class LocationService {
   }
 
   async update(id: string, dto: UpdateLocationDto) {
-    const location = await this.locationRepo.findOneBy({ id });
-    if (!location) throw new NotFoundException('error.location-not-found');
+    try {
+      const location = await this.locationRepo.findOneBy({ id });
+      if (!location) throw new NotFoundException('error.location-not-found');
 
-    Object.assign(location, dto);
-    return this.locationRepo.save(location);
+      Object.assign(location, dto);
+      return this.locationRepo.save(location);
+    } catch (error) {
+      throw new UnprocessableEntityException(error.message);
+    }
   }
 
   async remove(id: string): Promise<void> {

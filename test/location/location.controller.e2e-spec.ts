@@ -1,9 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExecutionContext, INestApplication } from '@nestjs/common';
+import {
+  ExecutionContext,
+  INestApplication,
+  ValidationPipe,
+} from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 
-import { APP_GUARD } from '@nestjs/core';
 import { UserEntity } from '../../src/user/user.entity'; // Import UserEntity
 import { DataSource } from 'typeorm'; // Import DataSource
 import { UserRole } from '../../src/auth/dto/signup.dto';
@@ -25,6 +28,8 @@ describe('LocationController (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
+    // Enable ValidationPipe globally
+    app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
     dataSource = app.get(DataSource); // Get DataSource instance
@@ -51,19 +56,20 @@ describe('LocationController (e2e)', () => {
   });
 
   describe('/locations (POST)', () => {
+    const code = Math.random().toString(36).substring(2, 15);
     it('should create a new location', async () => {
       const response = await request(app.getHttpServer())
         .post('/locations')
         .send({
           name: 'Building A',
-          code: 'A',
+          code,
           area: 1000,
         })
         .expect(201);
 
       expect(response.body).toHaveProperty('id');
       expect(response.body).toHaveProperty('name', 'Building A');
-      expect(response.body).toHaveProperty('code', 'A');
+      expect(response.body).toHaveProperty('code', code);
       expect(response.body).toHaveProperty('area', 1000);
     });
 
@@ -72,7 +78,7 @@ describe('LocationController (e2e)', () => {
         .post('/locations')
         .send({
           name: 1,
-          code: 1,
+          code,
           area: -100,
         })
         .expect(400);
@@ -90,12 +96,13 @@ describe('LocationController (e2e)', () => {
   });
 
   describe('/locations/:id (GET)', () => {
+    const code = Math.random().toString(36).substring(2, 15);
     it('should return a specific location by ID', async () => {
       const location = await request(app.getHttpServer())
         .post('/locations')
         .send({
           name: 'Building B',
-          code: 'B',
+          code,
           area: 2000,
         })
         .expect(201);
@@ -110,42 +117,44 @@ describe('LocationController (e2e)', () => {
 
     it('should return 404 for a non-existent ID', async () => {
       await request(app.getHttpServer())
-        .get('/locations/non-existent-id')
+        .get('/locations/7c46a0e3-c321-4a0c-bcbb-bcb94c0e3d46')
         .expect(404);
     });
   });
 
   describe('/locations/:id (PUT)', () => {
+    const code = Math.random().toString(36).substring(2, 15);
     it('should update a specific location by ID', async () => {
       const location = await request(app.getHttpServer())
         .post('/locations')
         .send({
           name: 'Building C',
-          code: 'C',
+          code,
           area: 3000,
         })
         .expect(201);
-
+      const codeUpdated = Math.random().toString(36).substring(2, 15);
       const response = await request(app.getHttpServer())
         .put(`/locations/${location.body.id}`)
         .send({
           name: 'Building C Updated',
-          code: 'C-Updated',
+          code: codeUpdated,
           area: 3500,
         })
         .expect(200);
 
       expect(response.body).toHaveProperty('name', 'Building C Updated');
-      expect(response.body).toHaveProperty('code', 'C-Updated');
+      expect(response.body).toHaveProperty('code', codeUpdated);
       expect(response.body).toHaveProperty('area', 3500);
     });
 
     it('should return 400 for invalid parameters', async () => {
+      const code = Math.random().toString(36).substring(2, 15);
       const location = await request(app.getHttpServer())
         .post('/locations')
         .send({
           name: 'Building D',
-          code: 'D',
+          code,
           area: 4000,
         })
         .expect(201);
@@ -162,12 +171,13 @@ describe('LocationController (e2e)', () => {
   });
 
   describe('/locations/:id (DELETE)', () => {
+    const code = Math.random().toString(36).substring(2, 15);
     it('should delete a specific location by ID', async () => {
       const location = await request(app.getHttpServer())
         .post('/locations')
         .send({
           name: 'Building E',
-          code: 'E',
+          code,
           area: 5000,
         })
         .expect(201);
@@ -179,7 +189,7 @@ describe('LocationController (e2e)', () => {
 
     it('should return 404 for a non-existent ID', async () => {
       await request(app.getHttpServer())
-        .delete('/locations/non-existent-id')
+        .delete('/locations/7c46a0e3-c321-4a0c-bcbb-bcb94c0e3d46')
         .expect(404);
     });
   });

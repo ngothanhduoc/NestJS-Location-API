@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsUUID,
   IsNotEmpty,
+  Min,
 } from 'class-validator';
 
 export class CreateLocationDto {
@@ -32,6 +33,7 @@ export class CreateLocationDto {
     description: 'Code of the location',
   })
   @IsNumber()
+  @Min(0)
   area: number;
 
   @ApiPropertyOptional({
