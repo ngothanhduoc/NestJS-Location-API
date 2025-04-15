@@ -54,6 +54,34 @@ export class LocationService {
       const location = await this.locationRepo.findOneBy({ id });
       if (!location) throw new NotFoundException('error.location-not-found');
 
+      if (dto.parentId) {
+        if (dto.parentId === id)
+          throw new Error('error.cannot-update-parent-to-itself');
+
+        let currentParentId = dto.parentId;
+        // Check if the proposed parent is not itself or its descendants
+        while (currentParentId) {
+          const parentNode = await this.locationRepo.findOne({
+            where: { id: currentParentId },
+            relations: ['parent'],
+          });
+
+          if (!parentNode) break; // If the parent does not exist, stop the loop (allow orphan nodes)
+          if (parentNode.id === id) {
+            throw new Error('error.cannot-assign-descendant-as-parent');
+          }
+
+          currentParentId = parentNode.parent?.id;
+        }
+        // Check if the new parent exists
+        const newParent = await this.locationRepo.findOneBy({
+          id: dto.parentId,
+        });
+        if (!newParent) throw new Error('error.parent-not-found');
+
+        location.parent = newParent;
+      }
+
       Object.assign(location, dto);
       return this.locationRepo.save(location);
     } catch (error) {

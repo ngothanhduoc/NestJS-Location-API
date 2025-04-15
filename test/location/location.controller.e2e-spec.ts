@@ -168,6 +168,51 @@ describe('LocationController (e2e)', () => {
         })
         .expect(400);
     });
+
+    it('should return 400 when assigning a parent that creates a circular dependency', async () => {
+      // Create location A
+      const locationA = await request(app.getHttpServer())
+        .post('/locations')
+        .send({
+          name: 'Location A',
+          code: Math.random().toString(36).substring(2, 15),
+          area: 1000,
+        })
+        .expect(201);
+
+      // Create location B with A as its parent
+      const locationB = await request(app.getHttpServer())
+        .post('/locations')
+        .send({
+          name: 'Location B',
+          code: Math.random().toString(36).substring(2, 15),
+          area: 2000,
+          parentId: locationA.body.id,
+        })
+        .expect(201);
+
+      // Create location C with B as its parent
+      const locationC = await request(app.getHttpServer())
+        .post('/locations')
+        .send({
+          name: 'Location C',
+          code: Math.random().toString(36).substring(2, 15),
+          area: 3000,
+          parentId: locationB.body.id,
+        })
+        .expect(201);
+
+      // Attempt to assign C as the parent of A, creating a circular dependency
+      await request(app.getHttpServer())
+        .put(`/locations/${locationA.body.id}`)
+        .send({
+          name: 'Location A Updated',
+          code: locationA.body.code,
+          area: locationA.body.area,
+          parentId: locationC.body.id,
+        })
+        .expect(422); // Expect a 400 Bad Request response
+    });
   });
 
   describe('/locations/:id (DELETE)', () => {
